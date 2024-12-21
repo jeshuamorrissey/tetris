@@ -11,7 +11,8 @@ public class Block
     public bool CanCollide { get; private set; }
     private Texture2D Texture;
 
-    public Block(Point gridTile, Color color, bool canCollide = false) {
+    public Block(Point gridTile, Color color, bool canCollide = false)
+    {
         GridTile = gridTile;
         Color = color;
         CanCollide = canCollide;
@@ -19,12 +20,34 @@ public class Block
         Texture.SetData([color]);
     }
 
-    public void MoveHorizontally(int dx) {
+    public void MoveHorizontally(int dx)
+    {
         GridTile = new Point(x: GridTile.X + dx, y: GridTile.Y);
     }
 
-    public void MoveVertically(int dy) {
+    public void MoveVertically(int dy)
+    {
         GridTile = new Point(x: GridTile.X, y: GridTile.Y + dy);
+    }
+
+    public void Move(int newX, int newY)
+    {
+        GridTile = new Point(x: newX, y: newY);
+    }
+
+    public string ToDebugString()
+    {
+        if (CanCollide)
+        {
+            return "□";
+        }
+
+        return " ";
+    }
+
+    public Block Clone()
+    {
+        return (Block)MemberwiseClone();
     }
 
     public void Draw()

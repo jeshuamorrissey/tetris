@@ -18,6 +18,35 @@ public class Config
     public const double TetronimoBaseVerticalSpeedBlocksPerSecond = 1;
     public const double TetronimoVerticalTurboBoostMultiplier = 10;
     public const double TetronimoBaseHorizontalSpeedBlocksPerSecond = 10;
+
+    public static bool[][,] SpawnableTetronimos { get; } = [
+        // T shape.
+        new bool[,] {
+            {false, true, false},
+            {true, true, true},
+        },
+
+        // L shape.
+        new bool[,] {
+            {true, false},
+            {true, false},
+            {true, true},
+        },
+
+        // Line.
+        new bool[,] {
+            {true},
+            {true},
+            {true},
+            {true},
+        },
+
+        // Square.
+        new bool[,] {
+            {true, true},
+            {true, true},
+        },
+    ];
 }
 
 

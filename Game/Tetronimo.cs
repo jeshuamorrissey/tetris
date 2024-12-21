@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -154,13 +155,41 @@ public class Tetronimo
             repeat: true
         );
     }
+    
+    private string ToDebugString(Block[,] blocks) {
+        string debugString = "";
+        for (int rowIdx = 0; rowIdx < blocks.GetLength(0); rowIdx++) {
+            debugString += rowIdx.ToString() + ": ";
+            for (int colIdx = 0; colIdx < blocks.GetLength(1); colIdx++) {
+                debugString += blocks[rowIdx, colIdx].ToDebugString();
+            }
+
+            debugString += "\n";
+        }
+
+        return debugString;
+    }
 
     private void HandleRotation(Func<Block, Point, bool> checkCollision)
     {
         if (Keyboard.GetState().IsKeyDown(Keys.Space) && _rotateAction == null)
         {
             _rotateAction = new DelayedAction(
-                action: Rotate,
+                action: () => {
+                    Console.WriteLine("About to rotate");
+                    var newBlocks = Rotate();
+                    Console.WriteLine("Old:\n{0}", ToDebugString(Blocks));
+                    Console.WriteLine("New:\n{0}", ToDebugString(newBlocks));
+                    for (int rowIdx = 0; rowIdx < newBlocks.GetLength(0); rowIdx++) {
+                        for (int colIdx = 0; colIdx < newBlocks.GetLength(1); colIdx++) {
+                            if (checkCollision(newBlocks[rowIdx, colIdx], new Point(0, 0))) {
+                                return;
+                            }
+                        }
+                    }
+
+                    Blocks = newBlocks;
+                },
                 getDelaySeconds: (int numExecutions) =>
                 {
                     if (numExecutions == 0) return 0;
@@ -176,29 +205,47 @@ public class Tetronimo
         }
     }
 
-    public void Rotate()
+    public Block[,] Rotate()
     {
-        // First, reverse each row.
-        var reversedRows = new Block[Blocks.GetLength(0), Blocks.GetLength(1)];
-        for (int rowIdx = 0; rowIdx < reversedRows.GetLength(0); rowIdx++)
+        // Transpose.
+        var transposedBlocks = new Block[Blocks.GetLength(1), Blocks.GetLength(0)];
+        for (int rowIdx = 0; rowIdx < transposedBlocks.GetLength(0); rowIdx++)
         {
-            for (int colIdx = 0; colIdx < reversedRows.GetLength(1); colIdx++)
+            for (int colIdx = 0; colIdx < transposedBlocks.GetLength(1); colIdx++)
             {
-                reversedRows[rowIdx, colIdx] = Blocks[rowIdx, Blocks.GetLength(1) - colIdx - 1];
+                transposedBlocks[rowIdx, colIdx] = Blocks[colIdx, rowIdx].Clone();
             }
         }
 
-        // Now, transpose.
-        var newBlocks = new Block[Blocks.GetLength(1), Blocks.GetLength(0)];
+        // Reverse each row.
+        var newBlocks = new Block[transposedBlocks.GetLength(0), transposedBlocks.GetLength(1)];
         for (int rowIdx = 0; rowIdx < newBlocks.GetLength(0); rowIdx++)
         {
             for (int colIdx = 0; colIdx < newBlocks.GetLength(1); colIdx++)
             {
-                newBlocks[rowIdx, colIdx] = reversedRows[colIdx, rowIdx];
+                newBlocks[rowIdx, colIdx] = transposedBlocks[rowIdx, transposedBlocks.GetLength(1) - colIdx - 1];
             }
         }
 
-        Blocks = newBlocks;
+        // If the new block is wider than the old block it may cause the block to go out of bounds on
+        // the left. In that case we shift the whole thing to the right by as many tiles as necessary to
+        // ensure it stays within the boundary. This can only happen on the very left wall.
+        var topRightBlockLocation = Blocks[0, Blocks.GetLength(1) - 1].GridTile;
+        var xPush = Math.Max(0, newBlocks.GetLength(1) - 1 - topRightBlockLocation.X);
+
+        // Move the blocks into the right position.
+        // By default, we anchor based on the top right. If we would rotate out of bounds, anchor on the top
+        // left instead.
+        for (int rowIdx = 0; rowIdx < newBlocks.GetLength(0); rowIdx++)
+        {
+            for (int colIdx = 0; colIdx < newBlocks.GetLength(1); colIdx++)
+            {
+                newBlocks[rowIdx, colIdx] = transposedBlocks[rowIdx, transposedBlocks.GetLength(1) - colIdx - 1];
+                newBlocks[rowIdx, colIdx].Move(topRightBlockLocation.X - (newBlocks.GetLength(1) - 1 - colIdx) + xPush, topRightBlockLocation.Y + rowIdx);
+            }
+        }
+
+        return newBlocks;
     }
 
     public void Draw()
@@ -208,7 +255,9 @@ public class Tetronimo
         {
             for (int colIdx = 0; colIdx < Blocks.GetLength(1); colIdx++)
             {
-                Blocks[rowIdx, colIdx].Draw();
+                if (Blocks[rowIdx, colIdx].CanCollide) {
+                    Blocks[rowIdx, colIdx].Draw();
+                }
             }
         }
     }
