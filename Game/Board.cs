@@ -21,7 +21,7 @@ public class Board : SimpleDrawableGameComponent
             {
                 Blocks[rowIdx, colIdx] = new Block(
                     gridTile: new Point(x: colIdx, y: rowIdx),
-                    color: Config.EmptyBlockColor,
+                    sprite: State.Sprites.LightBlueBlock,
                     canCollide: false
                 );
             }
@@ -77,13 +77,14 @@ public class Board : SimpleDrawableGameComponent
         if (FallingTetronimo != null && FallingTetronimo.HasCollided)
         {
             // Copy the blocks.
+            State.SoundEffects.Click.Play();
             foreach (var block in FallingTetronimo.Blocks)
             {
                 if (block.CanCollide)
                 {
                     Blocks[block.GridTile.Y, block.GridTile.X] = new Block(
                         gridTile: block.GridTile,
-                        color: Config.FixedBlockColor,
+                        sprite: State.Sprites.DarkBlueBlock,
                         canCollide: true
                     );
                 }
@@ -99,6 +100,11 @@ public class Board : SimpleDrawableGameComponent
     private void CheckCompleteRows()
     {
         var rowsToRemove = RowsToRemove(Blocks);
+        if (rowsToRemove.Count == 0) {
+            return;
+        }
+
+        State.SoundEffects.ClearRow.Play();
         var newBlocks = RemoveRows(Blocks, rowsToRemove);
         Blocks = FixBlockLocations(newBlocks);
     }
@@ -163,7 +169,7 @@ public class Board : SimpleDrawableGameComponent
                 {
                     blocks[rowIdx, colIdx] = new Block(
                         gridTile: new Point(x: colIdx, y: rowIdx),
-                        color: Config.EmptyBlockColor,
+                        sprite: State.Sprites.LightBlueBlock,
                         canCollide: false
                     );
                 }

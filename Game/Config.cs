@@ -5,8 +5,8 @@ namespace Tetris;
 public class Config
 {
     public const int BoardPaddingPx = 32;
-    public const int BlockHeightPx = 16;
-    public const int BlockWidthPx = 16;
+    public const int BlockHeightPx = 32;
+    public const int BlockWidthPx = 32;
 
     public static Color EmptyBlockColor = Color.LightBlue;
     public static Color FixedBlockColor = Color.DarkBlue;

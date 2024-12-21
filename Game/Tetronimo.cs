@@ -34,7 +34,7 @@ public class Tetronimo
                 {
                     Blocks[rowIdx, colIdx] = new Block(
                         gridTile: new Point(x: startingGridLocation.X + colIdx, y: startingGridLocation.Y + rowIdx),
-                        color: Config.FallingBlockColor,
+                        sprite: State.Sprites.RedBlock,
                         canCollide: true
                     );
                 }
@@ -42,7 +42,7 @@ public class Tetronimo
                 {
                     Blocks[rowIdx, colIdx] = new Block(
                         gridTile: new Point(x: startingGridLocation.X + colIdx, y: startingGridLocation.Y + rowIdx),
-                        color: Config.EmptyBlockColor,
+                        sprite: State.Sprites.LightBlueBlock,
                         canCollide: false
                     );
                 }
