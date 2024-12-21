@@ -96,24 +96,30 @@ public class Board : SimpleDrawableGameComponent
         CheckCompleteRows();
     }
 
-    private void CheckCompleteRows() {
+    private void CheckCompleteRows()
+    {
         var rowsToRemove = RowsToRemove(Blocks);
         var newBlocks = RemoveRows(Blocks, rowsToRemove);
         Blocks = FixBlockLocations(newBlocks);
     }
 
-    private static HashSet<int> RowsToRemove(Block[,] blocks) {
+    private static HashSet<int> RowsToRemove(Block[,] blocks)
+    {
         var rowsToRemove = new HashSet<int>();
-        for (int rowIdx = 0; rowIdx < blocks.GetLength(0); rowIdx++) {
+        for (int rowIdx = 0; rowIdx < blocks.GetLength(0); rowIdx++)
+        {
             var isCompleteRow = true;
-            for (int colIdx = 0; colIdx < blocks.GetLength(1); colIdx++) {
-                if (!blocks[rowIdx, colIdx].CanCollide) {
+            for (int colIdx = 0; colIdx < blocks.GetLength(1); colIdx++)
+            {
+                if (!blocks[rowIdx, colIdx].CanCollide)
+                {
                     isCompleteRow = false;
                     break;
                 }
             }
 
-            if (isCompleteRow) {
+            if (isCompleteRow)
+            {
                 rowsToRemove.Add(rowIdx);
             }
         }
@@ -121,19 +127,23 @@ public class Board : SimpleDrawableGameComponent
         return rowsToRemove;
     }
 
-    private static Block[,] RemoveRows(Block[,] existingBlocks, HashSet<int> rowsToRemove) {
+    private static Block[,] RemoveRows(Block[,] existingBlocks, HashSet<int> rowsToRemove)
+    {
         // We do this by making a new block grid which scans from bottom to top and only
         // keeps the rows that we want.
         var newBlocks = new Block[existingBlocks.GetLength(0), existingBlocks.GetLength(1)];
         int newRowIdx = existingBlocks.GetLength(0) - 1;  // Row index we are up to inserting.
-        for (int rowIdx = existingBlocks.GetLength(0) - 1; rowIdx >= 0; rowIdx--) {
+        for (int rowIdx = existingBlocks.GetLength(0) - 1; rowIdx >= 0; rowIdx--)
+        {
             // If we want to remove this row, skip it.
-            if (rowsToRemove.Contains(rowIdx)) {
+            if (rowsToRemove.Contains(rowIdx))
+            {
                 continue;
             }
 
             // Otherwise, copy the elements.
-            for (int colIdx = 0; colIdx < existingBlocks.GetLength(1); colIdx++) {
+            for (int colIdx = 0; colIdx < existingBlocks.GetLength(1); colIdx++)
+            {
                 newBlocks[newRowIdx, colIdx] = existingBlocks[rowIdx, colIdx];
             }
 
@@ -143,16 +153,22 @@ public class Board : SimpleDrawableGameComponent
         return newBlocks;
     }
 
-    private static Block[,] FixBlockLocations(Block[,] blocks) {
-        for (int rowIdx = 0; rowIdx < blocks.GetLength(0); rowIdx++) {
-            for (int colIdx = 0; colIdx < blocks.GetLength(1); colIdx++) {
-                if (blocks[rowIdx, colIdx] == null) {
+    private static Block[,] FixBlockLocations(Block[,] blocks)
+    {
+        for (int rowIdx = 0; rowIdx < blocks.GetLength(0); rowIdx++)
+        {
+            for (int colIdx = 0; colIdx < blocks.GetLength(1); colIdx++)
+            {
+                if (blocks[rowIdx, colIdx] == null)
+                {
                     blocks[rowIdx, colIdx] = new Block(
                         gridTile: new Point(x: colIdx, y: rowIdx),
                         color: Config.EmptyBlockColor,
                         canCollide: false
                     );
-                } else {
+                }
+                else
+                {
                     blocks[rowIdx, colIdx].Move(colIdx, rowIdx);
                 }
             }

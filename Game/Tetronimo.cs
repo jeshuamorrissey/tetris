@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -155,34 +154,21 @@ public class Tetronimo
             repeat: true
         );
     }
-    
-    private string ToDebugString(Block[,] blocks) {
-        string debugString = "";
-        for (int rowIdx = 0; rowIdx < blocks.GetLength(0); rowIdx++) {
-            debugString += rowIdx.ToString() + ": ";
-            for (int colIdx = 0; colIdx < blocks.GetLength(1); colIdx++) {
-                debugString += blocks[rowIdx, colIdx].ToDebugString();
-            }
-
-            debugString += "\n";
-        }
-
-        return debugString;
-    }
 
     private void HandleRotation(Func<Block, Point, bool> checkCollision)
     {
         if (Keyboard.GetState().IsKeyDown(Keys.Space) && _rotateAction == null)
         {
             _rotateAction = new DelayedAction(
-                action: () => {
-                    Console.WriteLine("About to rotate");
+                action: () =>
+                {
                     var newBlocks = Rotate();
-                    Console.WriteLine("Old:\n{0}", ToDebugString(Blocks));
-                    Console.WriteLine("New:\n{0}", ToDebugString(newBlocks));
-                    for (int rowIdx = 0; rowIdx < newBlocks.GetLength(0); rowIdx++) {
-                        for (int colIdx = 0; colIdx < newBlocks.GetLength(1); colIdx++) {
-                            if (checkCollision(newBlocks[rowIdx, colIdx], new Point(0, 0))) {
+                    for (int rowIdx = 0; rowIdx < newBlocks.GetLength(0); rowIdx++)
+                    {
+                        for (int colIdx = 0; colIdx < newBlocks.GetLength(1); colIdx++)
+                        {
+                            if (checkCollision(newBlocks[rowIdx, colIdx], new Point(0, 0)))
+                            {
                                 return;
                             }
                         }
@@ -255,7 +241,8 @@ public class Tetronimo
         {
             for (int colIdx = 0; colIdx < Blocks.GetLength(1); colIdx++)
             {
-                if (Blocks[rowIdx, colIdx].CanCollide) {
+                if (Blocks[rowIdx, colIdx].CanCollide)
+                {
                     Blocks[rowIdx, colIdx].Draw();
                 }
             }

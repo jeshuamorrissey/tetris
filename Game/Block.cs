@@ -35,16 +35,6 @@ public class Block
         GridTile = new Point(x: newX, y: newY);
     }
 
-    public string ToDebugString()
-    {
-        if (CanCollide)
-        {
-            return "□";
-        }
-
-        return " ";
-    }
-
     public Block Clone()
     {
         return (Block)MemberwiseClone();
