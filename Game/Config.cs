@@ -9,6 +9,8 @@ public class Config
     public const int BlockHeightPx = 32;
     public const int BlockWidthPx = 32;
 
+    public static bool ShowSecondBoard { set; get; } = false;
+
     public const int PointsPerRow = 1000;
     public const double PointsMultiplierPerRow = 0.1;
 

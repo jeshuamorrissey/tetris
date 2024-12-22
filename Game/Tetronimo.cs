@@ -14,6 +14,7 @@ enum HorizontalMovementActionKey
 public class Tetronimo
 {
     public Block[,] Blocks { get; private set; }
+    public Board Board { get; private set; }
 
     // State
     public bool HasCollided { get; private set; } = false;
@@ -24,8 +25,9 @@ public class Tetronimo
     private DelayedAction _rotateAction = null;
     private DelayedActionWithKey<HorizontalMovementActionKey> _horizontalMovementAction = null;
 
-    public Tetronimo(bool[,] blocks, Point startingGridLocation)
+    public Tetronimo(bool[,] blocks, Board board, Point startingGridLocation)
     {
+        Board = board;
         Blocks = new Block[blocks.GetLength(0), blocks.GetLength(1)];
         for (int rowIdx = 0; rowIdx < blocks.GetLength(0); rowIdx++)
         {
@@ -34,6 +36,7 @@ public class Tetronimo
                 if (blocks[rowIdx, colIdx])
                 {
                     Blocks[rowIdx, colIdx] = new Block(
+                        board: Board,
                         gridTile: new Point(x: startingGridLocation.X + colIdx, y: startingGridLocation.Y + rowIdx),
                         sprite: State.Sprites.RedBlock,
                         canCollide: true
@@ -42,6 +45,7 @@ public class Tetronimo
                 else
                 {
                     Blocks[rowIdx, colIdx] = new Block(
+                        board: Board,
                         gridTile: new Point(x: startingGridLocation.X + colIdx, y: startingGridLocation.Y + rowIdx),
                         sprite: State.Sprites.LightBlueBlock,
                         canCollide: false

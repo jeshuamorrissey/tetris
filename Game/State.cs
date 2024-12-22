@@ -33,6 +33,7 @@ public class State
         public static Sprite LightBlueBlock { get; private set; }
         public static Sprite DarkBlueBlock { get; private set; }
         public static SpriteSheet ClickAnimation { get; private set; }
+        public static SpriteFont Font { get; private set; }
 
         public static void Load(ContentManager content)
         {
@@ -45,6 +46,8 @@ public class State
 
             AsepriteFile clickAnimationFiles = content.Load<AsepriteFile>("sprites/click_animation");
             ClickAnimation = clickAnimationFiles.CreateSpriteSheet(GraphicsDevice, onlyVisibleLayers: true);
+
+            Font = content.Load<SpriteFont>("Arial");
         }
     }
 }

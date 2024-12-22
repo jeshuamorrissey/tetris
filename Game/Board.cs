@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Aseprite;
 using MonoGame.Extended;
 
@@ -16,17 +17,21 @@ public class Board : SimpleDrawableGameComponent
     private AnimatedSprite clickAnimation = null;
     private Vector2 clickAnimationLocation;
 
+    public Vector2 DrawLocation { get; private set; }
+    public bool HaveLost { get; private set; } = false;
     public int Width() { return Blocks.GetLength(1); }
     public int Height() { return Blocks.GetLength(0); }
 
-    public Board(int width, int height)
+    public Board(int width, int height, Vector2 drawLocation)
     {
+        DrawLocation = drawLocation;
         Blocks = new Block[height, width];
         for (int rowIdx = 0; rowIdx < Height(); rowIdx++)
         {
             for (int colIdx = 0; colIdx < Width(); colIdx++)
             {
                 Blocks[rowIdx, colIdx] = new Block(
+                    board: this,
                     gridTile: new Point(x: colIdx, y: rowIdx),
                     sprite: State.Sprites.LightBlueBlock,
                     canCollide: false
@@ -35,6 +40,7 @@ public class Board : SimpleDrawableGameComponent
         }
 
         NextTetronimo = new Tetronimo(
+            board: this,
             blocks: Config.SpawnableTetronimos[State.Random.Next(0, Config.SpawnableTetronimos.Length)],
             startingGridLocation: new Point(x: 0, y: 0)
         );
@@ -45,6 +51,7 @@ public class Board : SimpleDrawableGameComponent
         FallingTetronimo = NextTetronimo;
         FallingTetronimo.StartFalling();
         NextTetronimo = new Tetronimo(
+            board: this,
             blocks: Config.SpawnableTetronimos[State.Random.Next(0, Config.SpawnableTetronimos.Length)],
             startingGridLocation: new Point(x: 0, y: 0)
         );
@@ -52,6 +59,11 @@ public class Board : SimpleDrawableGameComponent
 
     public override void Update(GameTime gameTime)
     {
+        if (HaveLost)
+        {
+            return;
+        }
+
         FallingTetronimo?.Update(
             gameTime: gameTime,
             checkCollision: (block, dp) =>
@@ -118,12 +130,27 @@ public class Board : SimpleDrawableGameComponent
                 if (block.CanCollide)
                 {
                     Blocks[block.GridTile.Y, block.GridTile.X] = new Block(
+                        board: this,
                         gridTile: block.GridTile,
                         sprite: State.Sprites.DarkBlueBlock,
                         canCollide: true
                     );
                 }
             }
+
+            // Check to see if any blocks are on the top row of the board.
+            for (int colIdx = 0; colIdx < Width(); colIdx++)
+            {
+                if (Blocks[0, colIdx].CanCollide)
+                {
+                    FallingTetronimo = null;
+                    clickAnimation = null;
+                    HaveLost = true;
+                    return;
+                }
+            }
+
+
 
             // Reset the falling tetronimo.
             SpawnTetronimo();
@@ -208,7 +235,7 @@ public class Board : SimpleDrawableGameComponent
         return newBlocks;
     }
 
-    private static Block[,] FixBlockLocations(Block[,] blocks)
+    private Block[,] FixBlockLocations(Block[,] blocks)
     {
         for (int rowIdx = 0; rowIdx < blocks.GetLength(0); rowIdx++)
         {
@@ -217,6 +244,7 @@ public class Board : SimpleDrawableGameComponent
                 if (blocks[rowIdx, colIdx] == null)
                 {
                     blocks[rowIdx, colIdx] = new Block(
+                        board: this,
                         gridTile: new Point(x: colIdx, y: rowIdx),
                         sprite: State.Sprites.LightBlueBlock,
                         canCollide: false
@@ -248,6 +276,40 @@ public class Board : SimpleDrawableGameComponent
         if (clickAnimation?.IsAnimating == true)
         {
             clickAnimation.Draw(State.SpriteBatch, clickAnimationLocation);
+        }
+
+        if (HaveLost)
+        {
+            // Draw a semi-transparent rectangle over the board.
+            Texture2D texture = new Texture2D(State.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+            Color[] c = [Color.FromNonPremultiplied(255, 0, 0, 150)]; // 0 transparent; 255 opaque
+            texture.SetData(c);
+
+            int drawWidth = Width() * Config.BlockWidthPx;
+            int drawHeight = Height() * Config.BlockHeightPx;
+            State.SpriteBatch.Draw(
+                texture: texture,
+                destinationRectangle: new Rectangle(
+                    x: (int)DrawLocation.X,
+                    y: (int)DrawLocation.Y,
+                    width: drawWidth,
+                    height: drawHeight
+                ),
+                color: Color.White
+            );
+            
+            var loseString = "You lose";
+            var stringSize = State.Sprites.Font.MeasureString(loseString);
+
+            State.SpriteBatch.DrawString(
+                spriteFont: State.Sprites.Font,
+                text: loseString,
+                position: new Vector2(
+                    x: (int)DrawLocation.X + (int)Math.Floor((double)drawWidth / 2) - stringSize.X / 2,
+                    y: (int)DrawLocation.Y + (int)Math.Floor((double)drawHeight / 2) - stringSize.Y / 2
+                ),
+                color: Color.White
+            );
         }
     }
 }

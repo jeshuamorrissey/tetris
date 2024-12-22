@@ -11,8 +11,8 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager Graphics;
     private Board Board;
+    private Board SecondBoard;
     private Song Song;
-    private SpriteFont ScoreFont;
 
     public Game1()
     {
@@ -24,8 +24,17 @@ public class Game1 : Game
     protected override void Initialize()
     {
         Graphics.IsFullScreen = false;
-        Graphics.PreferredBackBufferWidth = Config.GameBoardWidthBlocks * Config.BlockWidthPx + (2 * Config.BoardPaddingPx) + 300;
-        Graphics.PreferredBackBufferHeight = Config.GameBoardHeightBlocks * Config.BlockHeightPx + (2 * Config.BoardPaddingPx);
+        if (Config.ShowSecondBoard)
+        {
+            Graphics.PreferredBackBufferWidth = Config.GameBoardWidthBlocks * Config.BlockWidthPx * 2 + (4 * Config.BoardPaddingPx) + 300;
+            Graphics.PreferredBackBufferHeight = Config.GameBoardHeightBlocks * Config.BlockHeightPx + (2 * Config.BoardPaddingPx);
+        }
+        else
+        {
+            Graphics.PreferredBackBufferWidth = Config.GameBoardWidthBlocks * Config.BlockWidthPx + (2 * Config.BoardPaddingPx) + 300;
+            Graphics.PreferredBackBufferHeight = Config.GameBoardHeightBlocks * Config.BlockHeightPx + (2 * Config.BoardPaddingPx);
+        }
+
         Graphics.ApplyChanges();
         base.Initialize();
     }
@@ -36,11 +45,28 @@ public class Game1 : Game
         State.SpriteBatch = new SpriteBatch(State.GraphicsDevice);
 
         Song = Content.Load<Song>("tetris");
-        ScoreFont = Content.Load<SpriteFont>("Arial");
         State.SoundEffects.Load(Content);
         State.Sprites.Load(Content);
-        Board = new Board(width: Config.GameBoardWidthBlocks, height: Config.GameBoardHeightBlocks);
+        Board = new Board(
+            width: Config.GameBoardWidthBlocks,
+            height: Config.GameBoardHeightBlocks,
+            drawLocation: new(x: Config.BoardPaddingPx, y: Config.BoardPaddingPx)
+        );
+
+        if (Config.ShowSecondBoard)
+        {
+            SecondBoard = new Board(
+                width: Config.GameBoardWidthBlocks,
+                height: Config.GameBoardHeightBlocks,
+                drawLocation: new(
+                    x: Graphics.PreferredBackBufferWidth - Config.BoardPaddingPx - (Config.GameBoardWidthBlocks * Config.BlockWidthPx),
+                    y: Config.BoardPaddingPx
+                )
+            );
+        }
+
         Board.SpawnTetronimo();
+        SecondBoard?.SpawnTetronimo();
     }
 
     protected override void Update(GameTime gameTime)
@@ -49,11 +75,16 @@ public class Game1 : Game
             Exit();
 
         Board.Update(gameTime);
+        SecondBoard?.Update(gameTime);
         base.Update(gameTime);
 
-        if (MediaPlayer.State != MediaState.Playing)
+        if (!Board.HaveLost && MediaPlayer.State != MediaState.Playing)
         {
             MediaPlayer.Play(Song);
+        }
+        else if (Board.HaveLost)
+        {
+            MediaPlayer.Stop();
         }
     }
 
@@ -64,8 +95,9 @@ public class Game1 : Game
         State.SpriteBatch.Begin();
 
         Board.Draw(gameTime);
+        SecondBoard?.Draw(gameTime);
         State.SpriteBatch.DrawString(
-            spriteFont: ScoreFont,
+            spriteFont: State.Sprites.Font,
             text: $"Score: {State.Score}",
             position: new Vector2(
                 x: Config.GameBoardWidthBlocks * Config.BlockWidthPx + (2 * Config.BoardPaddingPx) + 20,
@@ -74,7 +106,7 @@ public class Game1 : Game
             color: Color.White
         );
         State.SpriteBatch.DrawString(
-            spriteFont: ScoreFont,
+            spriteFont: State.Sprites.Font,
             text: $"Speed: {Config.TetronimoBaseVerticalSpeedBlocksPerSecond(State.Score)}",
             position: new Vector2(
                 x: Config.GameBoardWidthBlocks * Config.BlockWidthPx + (2 * Config.BoardPaddingPx) + 20,

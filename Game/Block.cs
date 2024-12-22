@@ -5,12 +5,14 @@ namespace Tetris;
 
 public class Block
 {
+    public Board Board { get; private set; }
     public Point GridTile { get; private set; }
     public Sprite Sprite { get; private set; }
     public bool CanCollide { get; private set; }
 
-    public Block(Point gridTile, Sprite sprite, bool canCollide = false)
+    public Block(Board board, Point gridTile, Sprite sprite, bool canCollide = false)
     {
+        Board = board;
         GridTile = gridTile;
         Sprite = sprite;
         CanCollide = canCollide;
@@ -34,8 +36,8 @@ public class Block
     public Vector2 RenderPosition()
     {
         return new Vector2(
-            x: Config.BoardPaddingPx + GridTile.X * Sprite.Width,
-            y: Config.BoardPaddingPx + GridTile.Y * Sprite.Height
+            x: Board.DrawLocation.X + GridTile.X * Sprite.Width,
+            y: Board.DrawLocation.Y + GridTile.Y * Sprite.Height
         );
     }
 
