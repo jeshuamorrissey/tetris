@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace Tetris;
@@ -8,6 +9,9 @@ public class Config
     public const int BlockHeightPx = 32;
     public const int BlockWidthPx = 32;
 
+    public const int PointsPerRow = 1000;
+    public const double PointsMultiplierPerRow = 0.1;
+
     public static Color EmptyBlockColor = Color.LightBlue;
     public static Color FixedBlockColor = Color.DarkBlue;
     public static Color FallingBlockColor = Color.Red;
@@ -15,7 +19,14 @@ public class Config
     public const int GameBoardWidthBlocks = 12;
     public const int GameBoardHeightBlocks = 24;
 
-    public const double TetronimoBaseVerticalSpeedBlocksPerSecond = 1;
+    public static double TetronimoBaseVerticalSpeedBlocksPerSecond(int score)
+    {
+        if (score < 1000) return 1;
+        if (score < 5000) return 2;
+        if (score < 10000) return 3;
+        return 3 + Math.Floor((double)score / 10000);
+    }
+
     public const double TetronimoVerticalTurboBoostMultiplier = 10;
     public const double TetronimoBaseHorizontalSpeedBlocksPerSecond = 10;
 

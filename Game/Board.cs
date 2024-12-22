@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using MonoGame.Aseprite;
 using MonoGame.Extended;
 
 namespace Tetris;
@@ -8,6 +10,11 @@ public class Board : SimpleDrawableGameComponent
 {
     private Block[,] Blocks;
     private Tetronimo FallingTetronimo = null;
+    private Tetronimo NextTetronimo = null;
+
+    // Animations.
+    private AnimatedSprite clickAnimation = null;
+    private Vector2 clickAnimationLocation;
 
     public int Width() { return Blocks.GetLength(1); }
     public int Height() { return Blocks.GetLength(0); }
@@ -26,11 +33,18 @@ public class Board : SimpleDrawableGameComponent
                 );
             }
         }
+
+        NextTetronimo = new Tetronimo(
+            blocks: Config.SpawnableTetronimos[State.Random.Next(0, Config.SpawnableTetronimos.Length)],
+            startingGridLocation: new Point(x: 0, y: 0)
+        );
     }
 
     public void SpawnTetronimo()
     {
-        FallingTetronimo = new Tetronimo(
+        FallingTetronimo = NextTetronimo;
+        FallingTetronimo.StartFalling();
+        NextTetronimo = new Tetronimo(
             blocks: Config.SpawnableTetronimos[State.Random.Next(0, Config.SpawnableTetronimos.Length)],
             startingGridLocation: new Point(x: 0, y: 0)
         );
@@ -76,8 +90,29 @@ public class Board : SimpleDrawableGameComponent
         // If the tetronimo has collided, we must absorb it.
         if (FallingTetronimo != null && FallingTetronimo.HasCollided)
         {
+            // Trigger animation.
+            clickAnimation = State.Sprites.ClickAnimation.CreateAnimatedSprite("ClickAnimation");
+            clickAnimation.Play(loopCount: 1);
+
+            List<Block> blocksToPick = [];
+            for (int colIdx = 0; colIdx < FallingTetronimo.Blocks.GetLength(1); colIdx++)
+            {
+                var block = FallingTetronimo.Blocks[FallingTetronimo.Blocks.GetLength(0) - 1, colIdx];
+                if (block.CanCollide)
+                {
+                    blocksToPick.Add(block);
+                }
+            }
+
+            var blockToAnimate = blocksToPick[State.Random.Next(0, blocksToPick.Count)];
+            clickAnimationLocation = new Vector2(
+                x: blockToAnimate.RenderPosition().X + (State.Random.Next(-1, 1) * (Config.BlockWidthPx / 2)),
+                y: blockToAnimate.RenderPosition().Y + (Config.BlockHeightPx / 2)
+            );
+
             // Copy the blocks.
             State.SoundEffects.Click.Play();
+
             foreach (var block in FallingTetronimo.Blocks)
             {
                 if (block.CanCollide)
@@ -95,14 +130,28 @@ public class Board : SimpleDrawableGameComponent
         }
 
         CheckCompleteRows();
+
+        if (clickAnimation != null)
+        {
+            clickAnimation.Update(gameTime);
+        }
     }
 
     private void CheckCompleteRows()
     {
         var rowsToRemove = RowsToRemove(Blocks);
-        if (rowsToRemove.Count == 0) {
+        if (rowsToRemove.Count == 0)
+        {
             return;
         }
+
+        int scoreChange = Config.PointsPerRow * rowsToRemove.Count;
+        if (rowsToRemove.Count > 1)
+        {
+            scoreChange = (int)Math.Round(scoreChange * (1 + Config.PointsMultiplierPerRow * (rowsToRemove.Count - 1)));
+        }
+
+        State.Score += scoreChange;
 
         State.SoundEffects.ClearRow.Play();
         var newBlocks = RemoveRows(Blocks, rowsToRemove);
@@ -196,5 +245,9 @@ public class Board : SimpleDrawableGameComponent
 
         // Draw the tetronimo.
         FallingTetronimo?.Draw();
+        if (clickAnimation?.IsAnimating == true)
+        {
+            clickAnimation.Draw(State.SpriteBatch, clickAnimationLocation);
+        }
     }
 }

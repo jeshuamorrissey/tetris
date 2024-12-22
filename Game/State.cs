@@ -1,8 +1,5 @@
 using System;
-using System.IO;
 using AsepriteDotNet.Aseprite;
-using AsepriteDotNet.IO;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,6 +12,7 @@ public class State
     public static SpriteBatch SpriteBatch { get; set; }
     public static GraphicsDevice GraphicsDevice { get; set; }
     public static Random Random { get; } = new Random();
+    public static int Score { get; set; } = 0;
 
     public class SoundEffects
     {
@@ -30,9 +28,11 @@ public class State
 
     public class Sprites
     {
+        public static AnimatedTilemap[] ActiveAnimations { get; private set; }
         public static Sprite RedBlock { get; private set; }
         public static Sprite LightBlueBlock { get; private set; }
         public static Sprite DarkBlueBlock { get; private set; }
+        public static SpriteSheet ClickAnimation { get; private set; }
 
         public static void Load(ContentManager content)
         {
@@ -42,6 +42,9 @@ public class State
             RedBlock = blockSheet.CreateSprite(0);
             LightBlueBlock = blockSheet.CreateSprite(1);
             DarkBlueBlock = blockSheet.CreateSprite(2);
+
+            AsepriteFile clickAnimationFiles = content.Load<AsepriteFile>("sprites/click_animation");
+            ClickAnimation = clickAnimationFiles.CreateSpriteSheet(GraphicsDevice, onlyVisibleLayers: true);
         }
     }
 }

@@ -17,6 +17,7 @@ public class Tetronimo
 
     // State
     public bool HasCollided { get; private set; } = false;
+    public bool IsFalling { get; private set; } = false;
 
     // Delayed actions.
     private DelayedAction _verticalMovementAction = null;
@@ -50,6 +51,11 @@ public class Tetronimo
         }
     }
 
+    public void StartFalling()
+    {
+        IsFalling = true;
+    }
+
     public void Update(GameTime gameTime, Func<Block, Point, bool> checkCollision)
     {
         if (HasCollided)
@@ -57,7 +63,7 @@ public class Tetronimo
             return;
         }
 
-        if (_verticalMovementAction == null)
+        if (_verticalMovementAction == null && IsFalling)
         {
             _verticalMovementAction = new DelayedAction(
                 action: () =>
@@ -81,8 +87,12 @@ public class Tetronimo
                 getDelaySeconds: (int numExecutions) =>
                 {
                     if (numExecutions == 0) return 0;
-                    if (Keyboard.GetState().IsKeyDown(Keys.Down)) return 1 / (Config.TetronimoBaseVerticalSpeedBlocksPerSecond * Config.TetronimoVerticalTurboBoostMultiplier);
-                    return 1 / Config.TetronimoBaseVerticalSpeedBlocksPerSecond;
+                    if (Keyboard.GetState().IsKeyDown(Keys.Down))
+                    {
+                        var turboSpeedBps = Math.Min(20, Config.TetronimoBaseVerticalSpeedBlocksPerSecond(State.Score) * Config.TetronimoVerticalTurboBoostMultiplier);
+                        return 1 / turboSpeedBps;
+                    }
+                    return 1 / Config.TetronimoBaseVerticalSpeedBlocksPerSecond(State.Score);
                 },
                 repeat: true
             );

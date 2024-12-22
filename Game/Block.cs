@@ -31,6 +31,14 @@ public class Block
         GridTile = new Point(x: newX, y: newY);
     }
 
+    public Vector2 RenderPosition()
+    {
+        return new Vector2(
+            x: Config.BoardPaddingPx + GridTile.X * Sprite.Width,
+            y: Config.BoardPaddingPx + GridTile.Y * Sprite.Height
+        );
+    }
+
     public Block Clone()
     {
         return (Block)MemberwiseClone();
@@ -40,9 +48,7 @@ public class Block
     {
         Sprite.Draw(
             spriteBatch: State.SpriteBatch,
-            position: new Vector2(
-                x: Config.BoardPaddingPx + GridTile.X * Sprite.Width,
-                y: Config.BoardPaddingPx + GridTile.Y * Sprite.Height)
+            position: RenderPosition()
         );
     }
 }
