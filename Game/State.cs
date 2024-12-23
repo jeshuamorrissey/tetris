@@ -1,5 +1,6 @@
 using System;
 using AsepriteDotNet.Aseprite;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,6 +10,7 @@ namespace Tetris;
 
 public class State
 {
+    public static GraphicsDeviceManager Graphics { get; set; }
     public static SpriteBatch SpriteBatch { get; set; }
     public static GraphicsDevice GraphicsDevice { get; set; }
     public static Random Random { get; } = new Random();
@@ -35,6 +37,10 @@ public class State
         public static SpriteSheet ClickAnimation { get; private set; }
         public static SpriteFont Font { get; private set; }
 
+        public static SpriteSheet Buttons { get; private set; }
+        public static Sprite UnclickedButton { get; private set; }
+        public static Sprite ClickedButton { get; private set; }
+
         public static void Load(ContentManager content)
         {
             AsepriteFile blockSprites = content.Load<AsepriteFile>("sprites/blocks");
@@ -48,6 +54,12 @@ public class State
             ClickAnimation = clickAnimationFiles.CreateSpriteSheet(GraphicsDevice, onlyVisibleLayers: true);
 
             Font = content.Load<SpriteFont>("Arial");
+
+            AsepriteFile buttonSprites = content.Load<AsepriteFile>("sprites/buttons");
+            Buttons = buttonSprites.CreateSpriteSheet(GraphicsDevice, onlyVisibleLayers: true);
+
+            UnclickedButton = Buttons.CreateSprite(0);
+            ClickedButton = Buttons.CreateSprite(1);
         }
     }
 }

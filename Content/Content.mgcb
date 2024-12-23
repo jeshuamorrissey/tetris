@@ -45,6 +45,18 @@
 /processorParam:PremultiplyAlpha=True
 /build:sprites/blocks.aseprite
 
+#begin sprites/buttons.aseprite
+/importer:AsepriteFileContentImporter
+/processor:AsepriteFileContentProcessor
+/processorParam:PremultiplyAlpha=True
+/build:sprites/buttons.aseprite
+
+#begin sprites/click_animation.aseprite
+/importer:AsepriteFileContentImporter
+/processor:AsepriteFileContentProcessor
+/processorParam:PremultiplyAlpha=True
+/build:sprites/click_animation.aseprite
+
 #begin sprites/click_animation.aseprite
 /importer:AsepriteFileContentImporter
 /processor:AsepriteFileContentProcessor
