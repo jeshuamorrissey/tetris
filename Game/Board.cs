@@ -298,7 +298,7 @@ public class Board : SimpleDrawableGameComponent
                 color: Color.White
             );
             
-            var loseString = "You lose";
+            var loseString = Localization.Strings.GameYouLose;
             var stringSize = State.Sprites.Font.MeasureString(loseString);
 
             State.SpriteBatch.DrawString(

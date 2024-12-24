@@ -11,6 +11,7 @@
 #-------------------------------- References --------------------------------#
 
 /reference:..\.nuget\packages-server\monogame.aseprite\6.1.0\content\Monogame.Aseprite.Content.Pipeline.dll
+/reference:..\.nuget\packages-server\monogame.extended.content.pipeline\4.0.2\tools\MonoGame.Extended.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -39,12 +40,6 @@
 /processorParam:PremultiplyAlpha=True
 /build:sprites/blocks.aseprite
 
-#begin sprites/blocks.aseprite
-/importer:AsepriteFileContentImporter
-/processor:AsepriteFileContentProcessor
-/processorParam:PremultiplyAlpha=True
-/build:sprites/blocks.aseprite
-
 #begin sprites/buttons.aseprite
 /importer:AsepriteFileContentImporter
 /processor:AsepriteFileContentProcessor
@@ -57,11 +52,17 @@
 /processorParam:PremultiplyAlpha=True
 /build:sprites/click_animation.aseprite
 
-#begin sprites/click_animation.aseprite
-/importer:AsepriteFileContentImporter
-/processor:AsepriteFileContentProcessor
-/processorParam:PremultiplyAlpha=True
-/build:sprites/click_animation.aseprite
+#begin strings/en-US.json
+/importer:JsonContentImporter
+/processor:JsonContentProcessor
+/processorParam:ContentType=Tetris.StringsReader, Tetris
+/build:strings/en-US.json
+
+#begin strings/id-ID.json
+/importer:JsonContentImporter
+/processor:JsonContentProcessor
+/processorParam:ContentType=Tetris.StringsReader, Tetris
+/build:strings/id-ID.json
 
 #begin Tetris.mp3
 /importer:Mp3Importer

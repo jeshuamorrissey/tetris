@@ -1,0 +1,12 @@
+{
+    "LanguageName": "Bahasa Indonesia",
+    "TitleNewGameButton": "Permainan baru",
+    "TitleOptionsButton": "Opsi",
+    "TitleQuitButton": "Berhenti",
+    "OptionsEnableSecondBoardCheckbox": "Enable kedua papan",
+    "OptionsChangeBaseSpeedSlider": "Menyetel mula-mula kecepatan (blok setiap sekon) [{0}]",
+    "OptionsBackButton": "Mundur",
+    "GameScore": "Skor: {0}",
+    "GameSpeed": "Kecepatan: {0}",
+    "GameYouLose": "Kamu kalah"
+}

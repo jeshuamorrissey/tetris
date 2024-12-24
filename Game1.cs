@@ -1,10 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Gum.DataTypes;
+using Gum.Wireframe;
+using GumRuntime;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using MonoGame.Extended.Content;
 using MonoGame.Extended.Graphics;
 using MonoGame.Extended.Input;
+using RenderingLibrary;
 
 namespace Tetris;
 
@@ -14,6 +19,8 @@ public class Game1 : Game
     private Board SecondBoard;
     private Song Song;
     private TitleScreen TitleScreen;
+    private GumProjectSave GumProject;
+    private GraphicalUiElement Root;
 
     public Game1()
     {
@@ -24,20 +31,18 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
+        GumProject = MonoGameGum.GumService.Default.Initialize(GraphicsDevice, "ui/tetris.gumx");
+        GumProject.LocalizationFile = "Content/ui/strings.csv";
+        GumProject.ShowLocalizationInGum = true;
         State.Graphics.IsFullScreen = false;
-        if (Config.ShowSecondBoard)
-        {
-            State.Graphics.PreferredBackBufferWidth = Config.GameBoardWidthBlocks * Config.BlockWidthPx * 2 + (4 * Config.BoardPaddingPx) + 300;
-            State.Graphics.PreferredBackBufferHeight = Config.GameBoardHeightBlocks * Config.BlockHeightPx + (2 * Config.BoardPaddingPx);
-        }
-        else
-        {
-            State.Graphics.PreferredBackBufferWidth = Config.GameBoardWidthBlocks * Config.BlockWidthPx + (2 * Config.BoardPaddingPx) + 300;
-            State.Graphics.PreferredBackBufferHeight = Config.GameBoardHeightBlocks * Config.BlockHeightPx + (2 * Config.BoardPaddingPx);
-        }
-
+        State.Graphics.PreferredBackBufferWidth = Config.GameBoardWidthBlocks * Config.BlockWidthPx * 2 + (4 * Config.BoardPaddingPx) + 300;
+        State.Graphics.PreferredBackBufferHeight = Config.GameBoardHeightBlocks * Config.BlockHeightPx + (2 * Config.BoardPaddingPx);
         State.Graphics.ApplyChanges();
+
+        Localization.Initialize(Content);
+
         TitleScreen = new TitleScreen(
+            gumProject: GumProject,
             onStartNewGame: () =>
             {
                 Board = new Board(
@@ -56,14 +61,17 @@ public class Game1 : Game
                             y: Config.BoardPaddingPx
                         )
                     );
+
+                    SecondBoard.SpawnTetronimo();
                 }
 
                 Board.SpawnTetronimo();
-                SecondBoard?.SpawnTetronimo();
             },
 
             onExit: Exit
         );
+        TitleScreen.Show();
+
         base.Initialize();
     }
 
@@ -86,7 +94,7 @@ public class Game1 : Game
 
         if (Board == null)
         {
-            TitleScreen.Update(gameTime);
+            MonoGameGum.GumService.Default.Update(this, gameTime, [State.GumRoot]);
         }
         else
         {
@@ -94,15 +102,17 @@ public class Game1 : Game
             SecondBoard?.Update(gameTime);
             base.Update(gameTime);
 
-            if (!Board.HaveLost && MediaPlayer.State != MediaState.Playing)
+            if ((!Board.HaveLost || (SecondBoard != null && !SecondBoard.HaveLost)) && MediaPlayer.State != MediaState.Playing)
             {
                 MediaPlayer.Play(Song);
             }
-            else if (Board.HaveLost)
+            else if (Board.HaveLost && (SecondBoard == null || SecondBoard.HaveLost))
             {
                 MediaPlayer.Stop();
             }
         }
+
+        base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
@@ -113,7 +123,7 @@ public class Game1 : Game
 
         if (Board == null)
         {
-            TitleScreen.Draw(gameTime);
+            MonoGameGum.GumService.Default.Draw();
         }
         else
         {
@@ -121,7 +131,7 @@ public class Game1 : Game
             SecondBoard?.Draw(gameTime);
             State.SpriteBatch.DrawString(
                 spriteFont: State.Sprites.Font,
-                text: $"Score: {State.Score}",
+                text: string.Format(Localization.Strings.GameScore, State.Score),
                 position: new Vector2(
                     x: Config.GameBoardWidthBlocks * Config.BlockWidthPx + (2 * Config.BoardPaddingPx) + 20,
                     y: 100
@@ -130,7 +140,7 @@ public class Game1 : Game
             );
             State.SpriteBatch.DrawString(
                 spriteFont: State.Sprites.Font,
-                text: $"Speed: {Config.TetronimoBaseVerticalSpeedBlocksPerSecond(State.Score)}",
+                text: string.Format(Localization.Strings.GameSpeed, Config.TetronimoBaseVerticalSpeedBlocksPerSecond(State.Score)),
                 position: new Vector2(
                     x: Config.GameBoardWidthBlocks * Config.BlockWidthPx + (2 * Config.BoardPaddingPx) + 20,
                     y: 140

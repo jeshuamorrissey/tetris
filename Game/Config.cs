@@ -21,12 +21,13 @@ public class Config
     public const int GameBoardWidthBlocks = 12;
     public const int GameBoardHeightBlocks = 24;
 
+    public static double TetronimoDefaultBaseVerticalSpeedBlocksPerSecond = 1;
     public static double TetronimoBaseVerticalSpeedBlocksPerSecond(int score)
     {
-        if (score < 1000) return 1;
-        if (score < 5000) return 2;
-        if (score < 10000) return 3;
-        return 3 + Math.Floor((double)score / 10000);
+        if (score < 1000) return TetronimoDefaultBaseVerticalSpeedBlocksPerSecond;
+        if (score < 5000) return TetronimoDefaultBaseVerticalSpeedBlocksPerSecond;
+        if (score < 10000) return TetronimoDefaultBaseVerticalSpeedBlocksPerSecond;
+        return TetronimoDefaultBaseVerticalSpeedBlocksPerSecond + 2 + Math.Floor((double)score / 10000);
     }
 
     public const double TetronimoVerticalTurboBoostMultiplier = 10;
@@ -43,6 +44,13 @@ public class Config
         new bool[,] {
             {true, false},
             {true, false},
+            {true, true},
+        },
+
+        // Backwards L shape.
+        new bool[,] {
+            {false, true},
+            {false, true},
             {true, true},
         },
 

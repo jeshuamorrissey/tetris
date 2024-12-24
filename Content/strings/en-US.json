@@ -1,0 +1,12 @@
+{
+    "LanguageName": "English",
+    "TitleNewGameButton": "New game",
+    "TitleOptionsButton": "Options",
+    "TitleQuitButton": "Quit",
+    "OptionsEnableSecondBoardCheckbox": "Enable second board",
+    "OptionsChangeBaseSpeedSlider": "Set base speed (blocks per second) [{0}]",
+    "OptionsBackButton": "Back",
+    "GameScore": "Score: {0}",
+    "GameSpeed": "Speed: {0}",
+    "GameYouLose": "You lose"
+}

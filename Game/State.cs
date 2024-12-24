@@ -1,10 +1,12 @@
 using System;
 using AsepriteDotNet.Aseprite;
+using Gum.Wireframe;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Aseprite;
+using RenderingLibrary;
 
 namespace Tetris;
 
@@ -15,6 +17,16 @@ public class State
     public static GraphicsDevice GraphicsDevice { get; set; }
     public static Random Random { get; } = new Random();
     public static int Score { get; set; } = 0;
+
+    private static GraphicalUiElement _gumRoot;
+    public static GraphicalUiElement GumRoot {
+        get { return _gumRoot; }
+        set {
+            _gumRoot?.RemoveFromManagers();
+            _gumRoot = value;
+            _gumRoot.AddToManagers(SystemManagers.Default, null);
+        }
+    }
 
     public class SoundEffects
     {
